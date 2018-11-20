@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 char *get_first_arg(int argc, char *argv[])
 {
    if (argc <2)
@@ -28,6 +27,5 @@ int main(int argc, char *argv[])
          printf("%c",arg[j]);
       printf("\n");
    }
-
    return 0;
 }

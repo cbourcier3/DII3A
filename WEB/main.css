@@ -1,0 +1,14 @@
+body
+{
+    font-family: 'Courier New', Courier, monospace;
+    background: rgb(231, 231, 229);
+}
+h1
+{
+    font: size 70px;
+    color: red; 
+}
+li
+{
+    color : white;
+}

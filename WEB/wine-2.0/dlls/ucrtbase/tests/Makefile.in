@@ -1,8 +1,0 @@
-TESTDLL   = ucrtbase.dll
-APPMODE   = -mno-cygwin
-
-C_SRCS = \
-	cpp.c \
-	misc.c \
-	printf.c \
-	string.c

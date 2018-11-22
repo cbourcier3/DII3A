@@ -1,5 +1,0 @@
-MODULE    = crtdll.dll
-IMPORTS   = msvcrt
-
-C_SRCS = \
-	crtdll_main.c

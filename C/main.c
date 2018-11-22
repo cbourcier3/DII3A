@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include 
 int recupererNombre(int minimum, int maximum){
     int nombre;
     do{

@@ -1,22 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 char *get_first_arg(int argc, char *argv[])
 {
     if (argc <2)
     {
         printf("no argument\n\n");
-        exit(0);
+        return 0 ;
     }
     return (argv[1]);
 }
 
-int main(int argc, char *argv[])
+char *upper(char *s)
 {
-    char *arg = get_first_arg(argc, argv);
-
-    printf("chaine: %s", arg);
-
-    return 0;
+    for (int i =0; i< strlen(s);i++)
+    {
+        if ((s[i]<123) && (s[i]>96))
+        {
+            s[i]=s[i]-32;
+        }
+    }
+    return s;
 }
 

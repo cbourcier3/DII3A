@@ -65,8 +65,11 @@ deplacement calculDeplacement(robot robot){
 int main(int argv, char* argc[]){
     robot monRobot;
     deplacement dep;
+    FILE* fichier = NULL;
+    fichier = fopen("dataRobotAvancement.txt", "r+");
     srand(time(NULL));
     monRobot = initRobot(monRobot);
     printf("%f %f %f %f \n",monRobot.position.roueDroiteX,monRobot.position.roueDroiteY,monRobot.position.roueGaucheX,monRobot.position.roueGaucheY);
-    dep =calculDeplacement(monRobot);
+    //dep =calculDeplacement(monRobot);
+    fputs("Hello",fichier);
 }

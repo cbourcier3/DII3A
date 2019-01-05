@@ -1,0 +1,3 @@
+t_card *ptr_head;
+
+ptr_head = malloc(sizeof(t_card));

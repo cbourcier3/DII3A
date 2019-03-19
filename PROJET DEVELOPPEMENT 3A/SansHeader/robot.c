@@ -9,9 +9,10 @@ void initRobot(robot *rob) //initialise la position du robot
     rob->position.roueDroiteY = rob->position.roueGaucheY;
     rob->position.centreX = (rob->position.roueDroiteX + rob->position.roueGaucheX) / 2;
     rob->position.centreY = rob->position.roueGaucheY;
-    rob->vitesseMax = 1;   //m.s-1
-    rob->rayonRoue = 0.05; //en mètre
+    rob->vitesseMax = 500;   //mm.s-1
+    rob->rayonRoue = 25; 
     rob->position.orientation = 1 / 2 * pi;
+    //Toutes les distances sont en milimètre
 }
 float randomFloat(float valeurMax) //Calculer un nombre random float entre 0 et valeurMax
 {
@@ -21,7 +22,7 @@ float randomFloat(float valeurMax) //Calculer un nombre random float entre 0 et 
 void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
 {
     float swapD = 0, swapG = 0;
-    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    for (int i = 0; i < nombreCoordonnees; i++)
     {
         printf("%f  , ", dep->impulsionDroite[i]);
         dep->impulsionDroite[i] = dep->impulsionDroite[i] + swapD;
@@ -36,17 +37,15 @@ void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
 void calculDeplacement(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI)
 {
     FILE *fichier = NULL;
-    fichier = fopen("dataRobotAvancement.txt", "w");
-    fprintf(fichier, "i;impusionTheoRoueGauche;impulsionTheoRoueDroite;impulsionReelRoueGauche;impulsionReelRoueDroite;\n");
-    float nbMaxImpulsionEnFctEchantillonnage;
-    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * dureeEchantillonnage * nombreCranParToursDeRoue;
-    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    fichier = fopen("dataImpulsions.csv", "w");
+    float nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue)*periode/nombreCoordonnees * nombreCranParToursDeRoue;
+    for (int i = 0; i < nombreCoordonnees; i++)
     {
         deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
         deplacementF->impulsionGauche[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
     }
     calculImpulsionsReels(deplacementF, deplacementI);
-    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    for (int i = 0; i < nombreCoordonnees; i++)
     {
         fprintf(fichier, "%d;%f;%f;%d;%d;\n", i, deplacementF->impulsionGauche[i], deplacementF->impulsionDroite[i], deplacementI->impulsionGauche[i], deplacementI->impulsionDroite[i]);
     }
@@ -63,13 +62,15 @@ void calculPositionReel(robot *rob, deplacement *dep)
     FILE *fichier = NULL;
     fichier = fopen("dataRobotPosition.csv", "w");
     fprintf(fichier, "i;centreX;centreY;roueGaucheX;roueGaucheY;roueDroiteX;roueDroiteY;orientation;\n");
+    fprintf(fichier, "-1;%d;%d;%d;%d;%d;%d;%f;\n", rob->position.centreX, rob->position.centreY,rob->position.roueGaucheX,rob->position.roueGaucheY,rob->position.roueDroiteX,rob->position.roueDroiteY, rob->position.orientation);
     float orientationPrec;
-    for (i = 0; i < tailleTableauValeursImpulsions; i++)
+    float distanceEntrePlusieursCrans =(2 * pi *  rob->rayonRoue) / nombreCranParToursDeRoue;
+    for (i = 0; i < nombreCoordonnees; i++)
     {
-        orientationPrec = rob->position.orientation * pi;
+        orientationPrec = rob->position.orientation;
         rob->position.orientation = ((dep->impulsionDroite[i] - dep->impulsionGauche[i]) / rob->entraxe) * pi + rob->position.orientation;
-        rob->position.centreX = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) * cos(orientationPrec) + rob->position.centreX;
-        rob->position.centreY = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) * sin(orientationPrec) + rob->position.centreY;
+        rob->position.centreX = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2)*distanceEntrePlusieursCrans * cos(orientationPrec) + rob->position.centreX;
+        rob->position.centreY = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) *distanceEntrePlusieursCrans* sin(orientationPrec) + rob->position.centreY;
         rob->position.roueGaucheX = rob->position.centreX + (rob->entraxe/2) * cos(rob->position.orientation);
         rob->position.roueGaucheY = rob->position.centreY - (rob->entraxe/2) * sin(rob->position.orientation);
         rob->position.roueDroiteX = rob->position.centreX - (rob->entraxe/2) * cos(rob->position.orientation);
@@ -82,19 +83,42 @@ void calculPositionRecu(robot *rob, deplacementEntier *dep )
 {
     FILE *fichier = NULL;
     fichier = fopen("dataRobotPositionRecu.csv", "w");
-    fprintf(fichier, "i;centreX;centreY;roueGaucheX;roueGaucheY;roueDroiteX;roueDroiteY;orientation;\n");
+    fprintf(fichier, "i;centreX;centreY;roueGaucheX;roueGaucheY;roueDroiteX;roueDroiteY;orientation;\n");       
+    fprintf(fichier, "-1;%d;%d;%d;%d;%d;%d;%f;\n", rob->position.centreX, rob->position.centreY,rob->position.roueGaucheX,rob->position.roueGaucheY,rob->position.roueDroiteX,rob->position.roueDroiteY, rob->position.orientation);
     float orientationPrec;
-    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    float distanceEntrePlusieursCrans =(2 * pi *  rob->rayonRoue) / nombreCranParToursDeRoue;
+    for (int i = 0; i < nombreCoordonnees; i++)
     {
-        orientationPrec = rob->position.orientation * pi;
+        orientationPrec = rob->position.orientation ;
         rob->position.orientation = ((dep->impulsionDroite[i] - dep->impulsionGauche[i]) / rob->entraxe) * pi + rob->position.orientation;
-        rob->position.centreX = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) * cos(orientationPrec) + rob->position.centreX;
-        rob->position.centreY = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) * sin(orientationPrec) + rob->position.centreY;
+        rob->position.centreX = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) *distanceEntrePlusieursCrans* cos(orientationPrec) + rob->position.centreX;
+        rob->position.centreY = (double)((dep->impulsionDroite[i] + dep->impulsionGauche[i]) / 2) *distanceEntrePlusieursCrans* sin(orientationPrec) + rob->position.centreY;
         rob->position.roueGaucheX = rob->position.centreX + (rob->entraxe/2) * cos(rob->position.orientation);
         rob->position.roueGaucheY = rob->position.centreY - (rob->entraxe/2) * sin(rob->position.orientation);
         rob->position.roueDroiteX = rob->position.centreX - (rob->entraxe/2) * cos(rob->position.orientation);
         rob->position.roueDroiteY = rob->position.centreY + (rob->entraxe/2) * sin(rob->position.orientation);
-        printf(" à i=%d : x: %d y: %d orientation: %f \n", i, rob->position.centreX, rob->position.centreY, rob->position.orientation);
+        //printf(" à i=%d : x: %d y: %d orientation: %f \n", i, rob->position.centreX, rob->position.centreY, rob->position.orientation);
         fprintf(fichier, "%d;%d;%d;%d;%d;%d;%d;%f;\n", i, rob->position.centreX, rob->position.centreY,rob->position.roueGaucheX,rob->position.roueGaucheY,rob->position.roueDroiteX,rob->position.roueDroiteY, rob->position.orientation);
     }
+}
+
+void calculDeplacementDefini(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI, int choixRand)
+{
+    FILE *fichier = NULL;
+    fichier = fopen("dataRobotAvancement.txt", "w");
+    fprintf(fichier, "i;impusionTheoRoueGauche;impulsionTheoRoueDroite;impulsionReelRoueGauche;impulsionReelRoueDroite;\n");
+    float nbMaxImpulsionEnFctEchantillonnage;//valeurMax
+    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * periode * nombreCranParToursDeRoue;
+    srand(choixRand);
+    for (int i = 0; i < nombreCoordonnees; i++)
+    {
+        deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
+        deplacementF->impulsionGauche[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
+    }
+    calculImpulsionsReels(deplacementF, deplacementI);
+    for (int i = 0; i < nombreCoordonnees; i++)
+    {
+        fprintf(fichier, "%d;%f;%f;%d;%d;\n", i, deplacementF->impulsionGauche[i], deplacementF->impulsionDroite[i], deplacementI->impulsionGauche[i], deplacementI->impulsionDroite[i]);
+    }
+    fclose(fichier);
 }

@@ -2,13 +2,13 @@
 #define ROBOT
 #define pi 3.14159
 #define nombreCranParToursDeRoue 100
-#define dureeEchantillonnage 0.1 //en s
-#define tailleTableauValeursImpulsions 100
+#define tailleTableauValeursImpulsions 10000
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-
+int nombreCoordonnees;
+int periode;                //en secondes
 typedef struct position
 {
     int roueGaucheX;
@@ -26,6 +26,8 @@ typedef struct robot
     float entraxe;
     float vitesseMax;
     float rayonRoue;
+    int nombreCoordonnees;
+    int periode;
     //distance en mm
     //vitesse en m.s-1
     //angle en radian
@@ -49,5 +51,6 @@ void calculPositionReel(robot *rob, deplacement *dep);
 void calculPositionRecu(robot *rob, deplacementEntier *dep );
 float randomFloat(float valeurMax); //Calculer un nombre random float entre 0 et valeurMax
 void initRobot(robot *rob);
+void calculDeplacementDefini(robot robot, deplacement* deplacementF, deplacementEntier* deplacementI, int choixRand);
 
 #endif

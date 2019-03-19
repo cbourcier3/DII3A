@@ -2,7 +2,8 @@
 
 int main(/*int argv, char *argc[]*/)
 {
-   srand(time(NULL));
+   nombreCoordonnees = 1000;   //valeur par défaut du nombre de coordonnées que l'on veut récupérer
+   periode = 10;              //valeur par défaut de la période 
    robot RobotReel;
    robot RobotRecu;
    deplacementEntier depEntier;

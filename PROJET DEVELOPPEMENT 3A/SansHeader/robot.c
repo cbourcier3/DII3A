@@ -19,38 +19,57 @@ float randomFloat(float valeurMax) //Calculer un nombre random float entre 0 et 
     int entierPourModulo = (int)(valeurMax * 1000000);
     return ((float)(rand() % entierPourModulo) / 1000000);
 }
-void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
+/*void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
 {
     float swapD = 0, swapG = 0;
-    for (int i = 0; i < nombreCoordonnees; i++)
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
-        printf("%f  , ", dep->impulsionDroite[i]);
-        dep->impulsionDroite[i] = dep->impulsionDroite[i] + swapD;
-        dep->impulsionGauche[i] = dep->impulsionGauche[i] + swapG;
-        depReel->impulsionGauche[i] = (int)(dep->impulsionGauche[i]);
-        depReel->impulsionDroite[i] = (int)(dep->impulsionDroite[i]);
-        swapD = dep->impulsionDroite[i] - (float)((int)(dep->impulsionDroite[i]));
-        swapG = dep->impulsionDroite[i] - (float)((int)(dep->impulsionDroite[i]));
-        printf("%f => %d\n", dep->impulsionDroite[i], depReel->impulsionDroite[i]);
+        dep->impulsionDroite[i] = dep->impulsionDroite[i] + dep->impulsionDroite[j];
+        dep->impulsionGauche[i] = dep->impulsionGauche[i] + dep->impulsionGauche[j] ;
+        depReel->impulsionGauche[i] = (int)(dep->impulsionGauche[i]+ swapG);
+        depReel->impulsionDroite[i] = (int)(dep->impulsionDroite[i]+ swapD);
+        swapD = dep->impulsionDroite[i] - ((float)(depReel->impulsionDroite[i]))+ swapD;
+        swapG = dep->impulsionGauche[i] - ((float)(depReel->impulsionGauche[i])) + swapG;
     }
-}
+}*///OLD
 void calculDeplacement(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI)
 {
     FILE *fichier = NULL;
     fichier = fopen("dataImpulsions.csv", "w");
     float nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue)*periode/nombreCoordonnees * nombreCranParToursDeRoue;
-    for (int i = 0; i < nombreCoordonnees; i++)
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
         deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
         deplacementF->impulsionGauche[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
     }
     calculImpulsionsReels(deplacementF, deplacementI);
-    for (int i = 0; i < nombreCoordonnees; i++)
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
         fprintf(fichier, "%d;%f;%f;%d;%d;\n", i, deplacementF->impulsionGauche[i], deplacementF->impulsionDroite[i], deplacementI->impulsionGauche[i], deplacementI->impulsionDroite[i]);
     }
     fclose(fichier);
 }
+/*void calculDeplacementDefini(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI, int choixRand)
+{
+    FILE *fichier = NULL;
+    fichier = fopen("dataRobotAvancement.txt", "w");
+    fprintf(fichier, "i;impusionTheoRoueGauche;impulsionTheoRoueDroite;impulsionReelRoueGauche;impulsionReelRoueDroite;\n");
+    float nbMaxImpulsionEnFctEchantillonnage;//valeurMax
+    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * periode * nombreCranParToursDeRoue;
+    srand(choixRand);
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    {
+        deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
+        deplacementF->impulsionGauche[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
+    }
+    calculImpulsionsReels(deplacementF, deplacementI);
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
+    {
+        fprintf(fichier, "%d;%f;%f;%d;%d;\n", i, deplacementF->impulsionGauche[i], deplacementF->impulsionDroite[i], deplacementI->impulsionGauche[i], deplacementI->impulsionDroite[i]);
+    }
+    fclose(fichier);
+}*///OLD
+
 void calculPositionReel(robot *rob, deplacement *dep)
 {
     //Calcul de l'angle pris par les roues
@@ -102,21 +121,40 @@ void calculPositionRecu(robot *rob, deplacementEntier *dep )
     }
 }
 
+void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
+{
+    float swapD = 0, swapG = 0;
+    int saut = tailleTableauValeursImpulsions/nombreCoordonnees;
+    int j;
+    for (int i = 0; i < nombreCoordonnees; i = i + 1)
+    {
+        j = i*saut + 1;
+        for(j=j ; j<i*saut + saut;j++)
+        {
+            dep->impulsionDroite[i] = dep->impulsionDroite[i] + dep->impulsionDroite[j];
+            dep->impulsionGauche[i] = dep->impulsionGauche[i] + dep->impulsionGauche[j] ;
+        }
+        depReel->impulsionGauche[i] = (int)(dep->impulsionGauche[i]+ swapG);
+        depReel->impulsionDroite[i] = (int)(dep->impulsionDroite[i]+ swapD);
+        swapD = dep->impulsionDroite[i] - ((float)(depReel->impulsionDroite[i]))+ swapD;
+        swapG = dep->impulsionGauche[i] - ((float)(depReel->impulsionGauche[i])) + swapG;
+    }
+}
 void calculDeplacementDefini(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI, int choixRand)
 {
     FILE *fichier = NULL;
     fichier = fopen("dataRobotAvancement.txt", "w");
     fprintf(fichier, "i;impusionTheoRoueGauche;impulsionTheoRoueDroite;impulsionReelRoueGauche;impulsionReelRoueDroite;\n");
     float nbMaxImpulsionEnFctEchantillonnage;//valeurMax
-    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * periode * nombreCranParToursDeRoue;
+    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * periode * nombreCranParToursDeRoue/10000;
     srand(choixRand);
-    for (int i = 0; i < nombreCoordonnees; i++)
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
         deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
         deplacementF->impulsionGauche[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
     }
     calculImpulsionsReels(deplacementF, deplacementI);
-    for (int i = 0; i < nombreCoordonnees; i++)
+    for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
         fprintf(fichier, "%d;%f;%f;%d;%d;\n", i, deplacementF->impulsionGauche[i], deplacementF->impulsionDroite[i], deplacementI->impulsionGauche[i], deplacementI->impulsionDroite[i]);
     }

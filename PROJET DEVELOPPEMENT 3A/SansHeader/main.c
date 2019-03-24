@@ -15,7 +15,7 @@ int main(/*int argv, char *argc[]*/)
    calculPositionReel(&RobotReel, &dep);
    calculPositionRecu(&RobotRecu, &depEntier);*/
    //test
-   nombreCoordonnees = 3;   //valeur par défaut du nombre de coordonnées que l'on veut récupérer
+   nombreCoordonnees = 100;   //valeur par défaut du nombre de coordonnées que l'on veut récupérer
    periode = 1;              //valeur par défaut de la période 
    robot RobotReel;
    robot RobotRecu;
@@ -24,7 +24,7 @@ int main(/*int argv, char *argc[]*/)
    srand(time(NULL));
    initRobot(&RobotReel);
    initRobot(&RobotRecu);
-   calculDeplacementDefini(RobotReel, &dep, &depEntier,1);
+   calculDeplacement(RobotReel, &dep, &depEntier);
    calculPositionReel(&RobotReel, &dep);
    calculPositionRecu(&RobotRecu, &depEntier);
 }

@@ -16,7 +16,7 @@ void initRobot(robot *rob) //initialise la position du robot
 }
 float randomFloat(float valeurMax) //Calculer un nombre random float entre 0 et valeurMax
 {
-    int entierPourModulo = (int)(valeurMax * 1000000);
+    int entierPourModulo = (int)(valeurMax * 1000000);//description sujet / analyse fonctionnel / modèle utilisé
     return ((float)(rand() % entierPourModulo) / 1000000);
 }
 /*void calculImpulsionsReels(deplacement *dep, deplacementEntier *depReel)
@@ -34,9 +34,12 @@ float randomFloat(float valeurMax) //Calculer un nombre random float entre 0 et 
 }*///OLD
 void calculDeplacement(robot robot, deplacement *deplacementF, deplacementEntier* deplacementI)
 {
-    FILE *fichier = NULL;
-    fichier = fopen("dataImpulsions.csv", "w");
-    float nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue)*periode/nombreCoordonnees * nombreCranParToursDeRoue;
+FILE *fichier = NULL;
+    fichier = fopen("dataRobotAvancement.txt", "w");
+    fprintf(fichier, "i;impusionTheoRoueGauche;impulsionTheoRoueDroite;impulsionReelRoueGauche;impulsionReelRoueDroite;\n");
+    float nbMaxImpulsionEnFctEchantillonnage;//valeurMax
+    nbMaxImpulsionEnFctEchantillonnage = robot.vitesseMax / (2 * pi * robot.rayonRoue) * periode * nombreCranParToursDeRoue/10000;
+    srand(time(NULL));
     for (int i = 0; i < tailleTableauValeursImpulsions; i++)
     {
         deplacementF->impulsionDroite[i] = randomFloat(nbMaxImpulsionEnFctEchantillonnage);
